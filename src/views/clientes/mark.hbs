@@ -1,0 +1,87 @@
+
+<style>
+ #map {
+   width: 100%;
+   height: 600px;
+   background-color: grey;
+ }
+</style>
+
+<div class="section">
+    <h3>Selecciona la vivienda del cliente: </h3>
+    <div id="map"></div>
+    <form action="/clientes/mark/{{clientes.IDCliente}}" class="form-inline" id="frm_mark" method="POST">
+        <label for="adress">Dirección</label>
+        <textarea name="dir" class="form-control" readonly required cols="20" rows="3"></textarea>
+        <label for="lat">Latitud</label>
+        <input type="text" class="form-control" name="lat" readonly required> 
+        <label for="lng">Logitud</label>
+        <input type="text" class="form-control" name="lng" readonly required>
+        <a href="/clientes" class="btn btn-secondary">Cancelar</a>
+        <input type="submit" class="btn btn-success" value="Guardar">  
+    </form>
+</div>
+<script>
+    var gmarkers = [];
+    
+    function initMap() {
+        const defaultLatLng = {lat: 20.250281, lng: -99.029392}
+    var geocoder = new google.maps.Geocoder;
+    geocoder.geocode({ 'location': defaultLatLng }, function (results, status) {
+				if (status === 'OK') {
+					if (results[0]) {
+                        $('#frm_mark textarea[name="dir"]').val(results[0].formatted_address);
+					} else {
+						window.alert('No results found');
+					}
+				} else {
+					window.alert('Geocoder failed due to: ' + status);
+				}
+			});
+    $('#frm_mark input[name="lat"]').val(defaultLatLng.lat);
+    $('#frm_mark input[name="lng"]').val(defaultLatLng.lng);
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 13,
+          center: defaultLatLng,
+          mapTypeId: 'satellite',
+        })
+
+        map.addListener('click', function(e) {
+            placeMarkerAndPanTo(e.latLng, map, geocoder);
+        });
+    }
+
+    function placeMarkerAndPanTo(latLng, map, geocoder) {
+        removeMarkers();
+        var marker = new google.maps.Marker({
+            position: latLng,
+            map: map,
+        });
+        $('#frm_mark input[name="lat"]').val(latLng.lat());
+        $('#frm_mark input[name="lng"]').val(latLng.lng());
+        geocoder.geocode({ 'location': latLng }, function (results, status) {
+				if (status === 'OK') {
+					if (results[0]) {
+                        $('#frm_mark textarea[name="dir"]').val(results[0].formatted_address);
+					} else {
+						window.alert('No results found');
+					}
+				} else {
+					window.alert('Geocoder failed due to: ' + status);
+				}
+			});
+        map.panTo(latLng);
+        gmarkers.push(marker);
+    }
+
+    function removeMarkers(){
+        for(i=0; i<gmarkers.length; i++){
+            gmarkers[i].setMap(null);
+        }
+    }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCk65gI5aMiFYzDBIfUp1kTZHvpmPWsnqY&callback=initMap"
+  type="text/javascript">
+  
+    
+</script>

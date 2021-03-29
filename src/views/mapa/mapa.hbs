@@ -1,0 +1,220 @@
+<script>
+	$(function() {
+       $('#table').bootstrapTable()
+    });
+</script>
+<div class="section row">
+    {{!--  --}}
+		<div class="container col-md-4 mb-2 p-3">
+			<h3 class="p-1">Rutas de los veterinarios </h3>
+			<form action="" id="frm_route">
+				<div class="form-group">
+					<label for="origin">Ubicación actual:</label>
+					<input type="text" class="form-control" name="origin" readonly />
+				</div>
+				<div class="form-group">
+					<label for="dir">Lista de consultas</label>
+					<table 
+							id="table"
+							data-locale="es-MX"
+							class="table"
+                            data-card-view="true"
+							data-height="300">
+						<thead>
+						<tr>
+							<th>Seleccionar:</th>
+							<th>Prioridad</th>
+							<th>Cliente:</th>
+							<th>Dirección:</th>
+						</tr>
+						</thead>
+						<tbody>
+						{{#each consultas}}
+						<tr>
+							<td><input type="checkbox" checked value="{{lat}}, {{lng}}" name="checkboxarray"></td>
+    						{{#if dir}}
+								<td>{{priority prioridad}}</td>
+								<td>{{cliente}}</td>
+								<td>{{dir}}</td>
+							{{/if}}
+						</tr>
+						{{else}}
+							<td>No hay ninguna consulta pendiente</td>
+						{{/each}}
+						</tbody>
+					</table>
+				</div>
+				<input type="submit" class="btn btn-success btn-block" id="btn_calcular" value="Calcular ruta">
+			</form>
+			<p>Segmentos de rutas:</p>
+			<div id="directions-panel"></div>
+		</div>
+		<div class="container col-md-8 p-3">
+			<div id="map"></div>
+		</div>
+		 {{!-- Aquí se cargará el mapa --}}
+</div>
+<script>
+    var consultas = [];
+    {{#each consultas}}
+    {{#if lat}}
+    consultas.push({  id: "{{IDConsulta}}",
+                      descripcion:"{{descripcion}}", 
+                      cliente: "{{cliente}}", 
+                      direccion: "{{direccion}}", 
+                      fecha: "{{timeago fechaRegistro}}", 
+                      lat: "{{lat}}",
+                      lng: "{{lng}}"});
+    {{/if}}
+    {{/each}}
+
+	var markers = [];
+	function initMap() {
+		var directionsService = new google.maps.DirectionsService();
+		var directionsRenderer = new google.maps.DirectionsRenderer();
+		var infoWindow = new google.maps.InfoWindow;
+		var geocoder = new google.maps.Geocoder;
+
+		var map = new google.maps.Map(document.getElementById('map'), {
+			zoom: 13,
+			center: { lat: 20.250281, lng: -99.029392 },
+			mapTypeId: 'hybrid',
+			streetViewControl: true, //Habilitamos el modo street view
+			mapTypeControl: false, //Evitamos que cambie la textura del mapa
+		});
+		directionsRenderer.setMap(map);
+
+		Array.prototype.forEach.call(consultas, function (consulta) {
+			var contentString;
+			var latlng = { lat: parseFloat(consulta.lat), lng: parseFloat(consulta.lng) };
+			geocoder.geocode({ 'location': latlng }, function (results, status) {
+				if (status === 'OK') {
+					if (results[0]) {
+						dir = results[0].formatted_address;
+						contentString = '' +
+							'<div id="content">' +
+							'<div id="' + consulta.id + '"></div>' +
+							'<h4 id="firstHeading" class="firstHeading">' + consulta.cliente + '</h4>' +
+							'<p id="secondHeading" class="secondHeading">' + dir + '</p><hr>' +
+							'<div id="bodyContent">' +
+							'<p>' + consulta.descripcion + '</p>' +
+							'<p>' + consulta.fecha + '</p>' +
+							'</div>' +
+							'</div>';
+					} else {
+						//window.alert('No results found');
+					}
+				} else {
+					//window.alert('Geocoder failed due to: ' + status);
+				}
+			});
+
+			// Try HTML5 geolocation.
+				$('#frm_route input[name="origin"]').val("Juan de Dios Bátiz, Av. Miguel Othón de Mendizábal Ote. &, Nueva Industrial Vallejo, Gustavo A. Madero, 07738 Ciudad de México, CDMX, México");
+
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(function(position) {
+				{{!-- var latLng = { lat: 20.254111725754942, lng: -98.99888099173745 }; --}}
+				var latLng = {
+					lat: position.coords.latitude,
+					lng: position.coords.longitude
+				};
+				
+				
+				map.setCenter(latLng);
+				var marker = new google.maps.Marker({
+					position: latLng,
+					map: map,
+					icon: '/img/blue_MarkerY.png'
+				});
+				geocoder.geocode({ 'location': latLng }, function (results, status) {
+					if (status === 'OK') {
+						if (results[0]) {
+							$('#frm_route input[name="origin"]').val(results[0].formatted_address);
+							console.log(results[0].formatted_address);
+						} else {
+							//window.alert('No results found');
+						}
+					} else {
+						//window.alert('Geocoder failed due to: ' + status);
+					}
+				});
+				
+				}, function() {
+					handleLocationError(true, infoWindow, map.getCenter());
+				});
+			} else {
+				// Browser doesn't support Geolocation
+				handleLocationError(false, infoWindow, map.getCenter());
+			}
+
+
+{{!-- 			var latLng = new google.maps.LatLng(consulta.lat, consulta.lng);
+			var marker = new google.maps.Marker({
+				position: latLng,
+				map: map
+			});
+
+			marker.addListener('click', function (e) {
+				infoWindow.setContent(contentString);
+				infoWindow.open(map, marker);
+			});
+
+			markers.push(marker); --}}
+		});
+
+		$("#frm_route").on('submit', function(e) {
+			e.preventDefault();
+			const data = $(this).serializeArray();
+			calculateAndDisplayRoute(directionsService, directionsRenderer, data);
+		});
+	}
+
+	function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+                              'Error: The Geolocation service failed.' :
+                              'Error: Your browser doesn\'t support geolocation.');
+        infoWindow.open(map);
+	}
+
+	function calculateAndDisplayRoute(directionsService, directionsRenderer, data){
+		var waypts = [];
+		for (var i = 1; i < data.length - 1; i++) {
+            waypts.push({
+              location: data[i].value,
+              stopover: true
+         	});
+		}
+		directionsService.route({
+			origin: data[0].value,
+			destination: data[data.length - 1].value,
+			waypoints: waypts,
+			optimizeWaypoints: true,
+			travelMode: 'DRIVING'
+        }, function(response, status) {
+			if (status === 'OK') {
+				directionsRenderer.setDirections(response);
+				var route = response.routes[0];
+				var summaryPanel = document.getElementById('directions-panel');
+				summaryPanel.innerHTML = '';
+				// For each route, display summary information.
+				for (var i = 0; i < route.legs.length; i++) {
+					var routeSegment = i + 1;
+					summaryPanel.innerHTML += '<b>Segmento de ruta: ' + routeSegment +
+					'</b><br>';
+					summaryPanel.innerHTML += '<b>Desde </b>' + route.legs[i].start_address + '<b> hacia </b>';
+					summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
+					summaryPanel.innerHTML += route.legs[i].distance.text + '<hr><br>';
+				}
+			} else {
+				window.alert('Directions request failed due to ' + status);
+			}
+        });
+	}
+
+    
+</script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=YOURAPI&callback=initMap">
+</script>

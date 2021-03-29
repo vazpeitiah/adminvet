@@ -1,0 +1,248 @@
+<script type="text/javascript">
+$(document).ready(function () {
+    $('#modal_update').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) 
+
+        var idconsulta = button.data('idconsulta')
+        var idtratamiento = button.data('idtratamiento')
+        var descripcion = button.data('descripcion') 
+        var precio = button.data('precio')
+        var veterinario = button.data('veterinario')
+        var modal = $(this)
+
+        modal.find('.modal-body textarea[name="descripcion"]').val(descripcion)
+        modal.find('.modal-body input[name="precio"]').val(precio)
+        modal.find('.modal-body select[name="veterinario"]').val(veterinario)
+       
+        $('#modal_update form').attr("action", "/consultas/"+idconsulta+"/tratamiento/edit/"+idtratamiento)
+    });
+
+    $('#modal_delete').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) 
+        var idtratamiento = button.data('idtratamiento') 
+        var idconsulta = button.data('idconsulta') 
+        var modal = $(this)
+        modal.find('.modal-body .id').text(idtratamiento)
+        $('#modal_delete .modal-footer a').attr("href", "/consultas/"+idconsulta+"/tratamiento/delete/"+idtratamiento)
+    });
+
+    $(function() {
+       $('#table').bootstrapTable()
+       $('#table2').bootstrapTable()
+
+    });
+});
+</script>
+
+<div class="section">
+    <div class="container-fluid">
+         <table
+            id="table2"
+            data-locale="es-MX"
+            class="table"
+            data-mobile-responsive="true"
+         >
+        <thead>
+            <tr>
+                <th data-field="idconsulta" >Clave:</th>
+                <th data-field="cliente" >Cliente:</th>
+                <th data-field="descripcion" >Descripción:</th>
+                <th data-field="precio" >Cuenta Total:</th>
+                <th data-field="fecha" >FechaProgramada:</th>
+                <th data-field="estado">Estado:</th>              
+            </tr>
+        </thead>
+            <tbody>
+                <td>{{consulta.IDConsulta}}</td>
+                <td>{{consulta.cliente}}</td>
+                <td>{{consulta.descripcion}}</td>
+                <td>{{consulta.cuentaTotal}}</td>
+                <td>{{consulta.programada}}</td>
+                <td>{{consulta.estado}}</td>
+            </tbody>
+    </table>
+    </div>
+    <div id="toolbar">
+        <div class="btn-group">
+            <h3>Tabla de tratamientos</h3>
+             <button type='button' class='btn btn-success ml-4' data-toggle='modal' 
+             data-target='#modal_insert' id='btn-new'> Agregar tratamiento</button>
+        </div>
+    </div>
+    <div class="table-responsive">
+    <table  id="table"
+            data-show-toggle="true"
+            data-toolbar="#toolbar"
+            data-locale="es-MX"
+            class="table table-striped"
+            data-toggle="table"
+            data-search="true"
+            data-pagination="true"
+            data-mobile-responsive="true"
+            data-check-on-init="true" >
+        <thead>
+            <tr>
+                <th data-sortable="true" data-field="numero" >Número:</th>
+                <th data-sortable="true" data-field="descripcion" >Descripción:</th>
+                <th data-sortable="true" data-field="precio" >Precio:</th>
+                <th data-sortable="true" data-field="fecha" >Fecha:</th>
+                <th data-sortable="true" data-field="veterinario">Veterinario:</th>                   
+                <th></th>
+            </tr>
+        </thead>
+            <tbody> 
+                {{#each tratamientos}}
+                <tr>    
+                    <td >{{IDTratamiento}}</td>
+                    <td>{{descripcion}}</td>
+                    <td>{{precio}}</td>
+                    <td>{{fecha}}</td>
+                    <td>{{veterinario}}</td>
+                    <td>
+                    <div class="btn-group" role="group">
+{{!--                         <a class="btn btn-primary ml-2" href="">
+                            <i class="fa fa-medkit" aria-hidden="true"></i>
+                        </a> --}}
+
+                        <button class="btn btn-secondary ml-2" 
+                                data-target='#modal_update' 
+                                data-IDTratamiento="{{IDTratamiento}}"
+                                data-IDConsulta="{{IDConsulta}}"
+                                data-descripcion="{{descripcion}}"
+                                data-precio="{{precio}}"
+                                data-veterinario="{{veterinario}}"
+                                data-toggle='modal'>
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                        </button>
+  
+                        <button class="btn btn-danger ml-2" 
+                                data-target='#modal_delete' 
+                                data-IDTratamiento="{{IDTratamiento}}" 
+                                data-IDConsulta="{{IDConsulta}}" 
+                                data-toggle='modal'>
+                            <i class="fa fa-trash-o" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    </td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td>
+                        No hay ningún registro en la base de datos.
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+    </table>
+    </div>
+</div>
+
+<!-- Modal para agregar -->
+<div class='modal fade' id='modal_insert'>	
+    <div class='modal-dialog modal-lg modal-dialog-centered'>
+    <div class='modal-content'>
+        <form action="/consultas/{{consulta.IDConsulta}}/tratamiento/add/" autocomplete="off" method="POST">
+        <!-- Modal Header -->
+        <div class='modal-header'>
+            <h3 class='modal-title'>Agregar un nuevo tratamiento</h3>
+            <button type='button' class='close' data-dismiss='modal'>&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class='modal-body'>				
+            <div class="form-group">
+                <label for="descripcion">Decripción</label>
+                <textarea class="form-control" name="descripcion" rows="3" placeholder="Descripción del tratamiento" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="precio">Precio del tratamiento</label>
+                <input type="number" class="form-control" step="0.5" min="0.0" name="precio" required>
+            </div>
+            <div class="form-group">
+                <label for="veterinario">Veterinario </label>
+                <select name="veterinario" class="form-control" required>
+                    {{#each veterinarios}}
+                        <option value="{{user}}">{{nombre}}</option>
+                    {{else}}
+                        <option value="">No hay ningún veterinario registrado</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div> 
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+            <input type="reset" class="btn btn-secondary" data-dismiss="modal" value="Cancelar" />
+            <input type="submit" class="btn btn-primary" value="Guardar">
+        </div>
+        </form>
+    </div>
+    </div>
+</div>
+
+<!-- Modal para actualizar-->
+<div class='modal fade' id='modal_update'>	
+    <div class='modal-dialog modal-lg modal-dialog-centered'>
+    <div class='modal-content'>
+        <form autocomplete="off" method="POST" action="">
+        <!-- Modal Header -->
+        <div class='modal-header'>
+            <h3 class='modal-title'>Actualizar información cliente</h3>
+            <button type='button' class='close' data-dismiss='modal'>&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class='modal-body'>
+            <div class="form-group">
+                <label for="descripcion">Decripción</label>
+                <textarea class="form-control" name="descripcion" rows="3" placeholder="Descripción del tratamiento" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="precio">Precio del tratamiento</label>
+                <input type="number" class="form-control" step="0.5" min="0.0" name="precio" required>
+            </div>
+            <div class="form-group">
+                <label for="veterinario">Veterinario </label>
+                <select name="veterinario" class="form-control" required>
+                    {{#each veterinarios}}
+                        <option value="{{user}}">{{nombre}}</option>
+                    {{else}}
+                        <option value="">No hay ningún veterinario registrado</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div> 
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <input type="submit" class="btn btn-info" value="Guardar cambios">
+        </div>
+        </form>
+    </div>
+    </div>
+</div>
+
+<!-- Modal para eliminar-->
+<div class='modal' id='modal_delete'>	
+    <div class='modal-dialog modal-dialog-centered'>
+        <div class='modal-content'>
+
+            <!-- Modal Header -->
+            <div class='modal-header'>
+                <h3 class='modal-title'>Confirmación para eliminar registro</h3>
+            </div>
+
+            <!-- Modal body -->
+            <div class='modal-body'>
+                <h5>¿Desea borrar el registro con clave <b><span class="id"></span></b> ?</h5>
+            </div> 
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <a href="" class="btn btn-primary">SÍ</a>
+            </div>
+        </div> 
+    </div>
+</div>

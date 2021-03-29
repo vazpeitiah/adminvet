@@ -1,0 +1,293 @@
+<script type="text/javascript">
+$(document).ready(function () {
+    $('#modal_update').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) 
+
+        var codigo = button.data('codigo')
+        var nombre = button.data('nombre') 
+        var marca = button.data('marca')
+        var tipo = button.data('tipo')
+        var descripcion = button.data('descripcion')
+        var precioUnitario = button.data('preciounitario')
+        var precioPublico = button.data('preciopublico')
+        var cantidadDisponible = button.data('cantidaddisponible')
+
+        var modal = $(this)
+
+        modal.find('.modal-body input[name="codigo"]').val(codigo)
+        modal.find('.modal-body textarea[name="nombre"]').val(nombre)
+        modal.find('.modal-body input[name="marca"]').val(marca)
+        modal.find('.modal-body input[name="descripcion"]').val(descripcion)
+        modal.find('.modal-body input[name="precioPublico"]').val(precioPublico)
+        modal.find('.modal-body select[name="tipo"]').val(tipo)
+        modal.find('.modal-body input[name="precioUnitario"]').val(precioUnitario)
+        modal.find('.modal-body input[name="cantidadDisponible"]').val(cantidadDisponible)
+
+        $('#modal_update form').attr("action", "/inventario/edit/"+codigo)
+    });
+
+    $('#modal_delete').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) 
+        var ID = button.data('id') 
+        var modal = $(this)
+        modal.find('.modal-body .id').text(ID)
+        $('#modal_delete .modal-footer a').attr("href", "/inventario/delete/"+ID)
+    });
+
+    $(function() {
+       $('#table').bootstrapTable()
+    });
+});
+</script>
+
+<div class="section">
+    <div id="toolbar">
+        <div class="btn-group">
+            <h3>Inventario general</h3>
+        <button type='button' class='btn btn-success ml-4' data-toggle='modal' 
+        data-target='#modal_insert' id='btn-new'> Agregar artículo</button>
+        </div>
+    </div>
+    <div class="table-container">
+    <table  id="table"
+            data-show-toggle="true"
+            data-toolbar="#toolbar"
+            data-locale="es-MX"
+            data-toggle="table"
+            data-search="true"
+            data-pagination="true"
+            data-mobile-responsive="true"
+            data-check-on-init="true" >
+        <thead>
+            <tr>
+                <th data-sortable="true" data-field="id">Código:</th>
+                <th data-sortable="true" data-field="nombre" >Nombre:</th>
+                <th data-sortable="true" data-field="marca" >Marca:</th>
+                <th data-sortable="true" data-field="presentacion" >Presentación:</th>
+                <th data-sortable="true" data-field="tipo" >Categoria:</th>
+                <th data-sortable="true" data-field="compra" >Compra($):</th>
+                <th data-sortable="true" data-field="venta" >Venta($):</th>
+                <th data-sortable="true" data-field="disponible" >Disponibilidad:</th>                   
+                <th></th>
+            </tr>
+        </thead>
+            <tbody> 
+                {{#each inventario}}
+                <tr>    
+                    <td>{{codigo}}</td>
+                    <td>{{nombre}}</td>
+                    <td>{{marca}}</td>
+                    <td>{{descripcion}}</td>
+                    <td>{{tipo}}</td>
+                    <td>{{precioUnitario}}</td>
+                    <td>{{precioPublico}}</td>
+                    <td>{{cantidadDisponible}}</td>
+                    <td>
+                         <div class="btn-group" role="group">
+                        <button class="btn btn-secondary ml-2" 
+                                data-target='#modal_update' 
+                                data-codigo="{{codigo}}"
+                                data-nombre="{{nombre}}"
+                                data-marca="{{marca}}"
+                                data-descripcion="{{descripcion}}"
+                                data-precioUnitario="{{precioUnitario}}"
+                                data-precioPublico="{{precioPublico}}"
+                                data-cantidadDisponible="{{cantidadDisponible}}"
+                                data-tipo="{{tipo}}"
+                                data-toggle='modal'>
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                        </button> 
+                        <button class="btn btn-danger ml-2" 
+                                data-target='#modal_delete' 
+                                data-id="{{codigo}}" 
+                                data-toggle='modal'>
+                            <i class="fa fa-trash-o" aria-hidden="true"></i>
+                        </button>
+                        </div>
+                    </td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td>
+                        No hay ningún registro en la base de datos.
+                    </td>
+                </tr>
+                {{/each}}
+
+            </tbody>
+    </table>
+    </div>
+    <div></div>
+</div>
+<!-- Modal para agregar -->
+<div class='modal fade' id='modal_insert'>	
+    <div class='modal-dialog modal-dialog-centered modal-lg'>
+    <div class='modal-content'>
+        <form autocomplete="off" action="/inventario/add" method="POST">
+        <!-- Modal Header -->
+        <div class='modal-header'>
+            <h3 class='modal-title'>Agregar un nuevo artículo</h3>
+            <button type='button' class='close' data-dismiss='modal'>&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class='modal-body'>
+            <div class="form-group">
+                <label for="codigo">Código de barras</label>
+                <input type="text" class="form-control" name="codigo" required="" placeholder="Clave del medicamento">
+            </div>
+            <div class="form-group">
+                <label for="Nombre">Nombre</label>
+                <textarea class="form-control" name="nombre" required="" placeholder="Nombre o descripcion del producto" rows="1"></textarea>
+            </div>
+
+            <div class="form-group row">
+                <div class="form-group col-md-6">
+                    <label for="marca">Marca</label>
+                    <input type="text" class="form-control" name="marca" required="" placeholder="Marca o distribuidor">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="descripcion">Presentación del articulo</label>
+                    <input type="text" class="form-control" name="descripcion" placeholder="Presentación del producto (ml, l, gr, kg, piezas, etc...)">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="form-group col-md-6">
+                    <label for="precio">Precio unitario</label>
+                    <input type="number" name="precioUnitario" required="" class="form-control" min="0" step=".5" value="0.0">
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label for="precio">Precio publico</label>
+                    <input type="number" name="precioPublico" required="" class="form-control" min="0" step=".5" value="0.0">
+                </div>	
+            </div>
+
+            <div class="form-group row">
+            <div class="form-group col-md-6">
+                <label for="tipo">Tipo</label>
+                <select required="" class="form-control" name="tipo">
+                    <option value="Material de curación">Material de curación</option>
+                    <option value="Desparacitante">Desparacitante</option>
+                    <option value="Antiflamatorio">Antiflamatorio</option>
+                    <option value="Vitaminas">Vitaminas</option>
+                    <option value="Anestesico">Anestesico</option>
+                    <option value="Hormonas">Hormonas</option>
+                    <option value="Antibioticos">Antibioticos</option>
+                    <option value="Vacunas">Vacunas</option>
+                    <option value="Otros">Otros</option>
+                </select>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="cantidadDisponible">Cantidad Disponible</label>
+                <input type="number" value="0" step="1" min="0" class="form-control" required="" name="cantidadDisponible">
+            </div>
+            </div>
+        </div> 
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancel_insert">Cancelar</button>
+            <input type="submit" class="btn btn-primary" value="Guardar">
+        </div>
+        </form>
+    </div>
+    </div>
+</div>
+
+<!-- Modal para actualizar-->
+<div class='modal fade' id='modal_update'>	
+    <div class='modal-dialog modal-dialog-centered modal-lg'>
+    <div class='modal-content'>
+        <form id="frm_update" autocomplete="off" method="POST" action="">
+        <!-- Modal Header -->
+        <div class='modal-header'>
+            <h3 class='modal-title'>Actualizar información del producto</h3>
+            <button type='button' class='close' data-dismiss='modal'>&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class='modal-body'>
+            <div class="form-group">
+                <label for="Nombre">Nombre</label>
+                <textarea class="form-control" name="nombre" required="" placeholder="Nombre o descripcion del producto" rows="1"></textarea>
+            </div>
+
+            <div class="form-group row">
+                <div class="form-group col-md-6">
+                    <label for="marca">Marca</label>
+                    <input type="text" class="form-control" name="marca" required="" placeholder="Marca o distribuidor">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="descripcion">Presentación del articulo</label>
+                    <input type="text" class="form-control" name="descripcion" placeholder="Presentación del producto (ml, l, gr, kg, piezas, etc...)">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="form-group col-md-6">
+                    <label for="precio">Precio unitario</label>
+                    <input type="number" name="precioUnitario" required="" class="form-control" min="0" step=".5" value="0.0">
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label for="precio">Precio publico</label>
+                    <input type="number" name="precioPublico" required="" class="form-control" min="0" step=".5" value="0.0">
+                </div>	
+            </div>
+
+            <div class="form-group row">
+            <div class="form-group col-md-6">
+                <label for="tipo">Tipo</label>
+                <select required="" class="form-control" name="tipo">
+                    <option value="Material de curación">Material de curación</option>
+                    <option value="Desparacitante">Desparacitante</option>
+                    <option value="Antiflamatorio">Antiflamatorio</option>
+                    <option value="Vitaminas">Vitaminas</option>
+                    <option value="Anestesico">Anestesico</option>
+                    <option value="Hormonas">Hormonas</option>
+                    <option value="Antibioticos">Antibioticos</option>
+                    <option value="Vacunas">Vacunas</option>
+                    <option value="Otros">Otros</option>
+                </select>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="cantidadDisponible">Cantidad Disponible</label>
+                <input type="number" value="0" step="1" min="0" class="form-control" required="" name="cantidadDisponible">
+            </div>
+            </div>
+        </div> 
+        <!-- Modal footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <input type="submit" class="btn btn-primary" value="Guardar cambios">
+        </div>
+        </form>
+    </div>
+    </div>
+</div>
+
+<!-- Modal para eliminar-->
+<div class='modal' id='modal_delete'>	
+    <div class='modal-dialog modal-dialog-centered'>
+        <div class='modal-content'>
+
+            <!-- Modal Header -->
+            <div class='modal-header'>
+                <h3 class='modal-title'>Confirmación para eliminar registro</h3>
+            </div>
+
+            <!-- Modal body -->
+            <div class='modal-body'>
+                <h5>¿Desea borrar el registro con clave <b><span class="id"></span></b> ?</h5>
+            </div> 
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <a href="" class="btn btn-primary">SÍ</a>
+            </div>
+        </div> 
+    </div>
+</div>

@@ -1,0 +1,204 @@
+<script type="text/javascript">
+$(document).ready(function () {
+    $('#modal_update').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) 
+
+        var numero = button.data('numero')
+        var descripcion = button.data('descripcion') 
+        var veterinario = button.data('veterinario')
+
+        var modal = $(this)
+
+        modal.find('.modal-body input[name="numero"]').val(numero)
+        modal.find('.modal-body textarea[name="descripcion"]').val(descripcion)
+        modal.find('.modal-body select[name="veterinario"]').val(veterinario)
+       
+        $('#modal_update form').attr("action", "/botiquines/edit/"+numero)
+    });
+
+    $('#modal_delete').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) 
+        var ID = button.data('id') 
+        var modal = $(this)
+        modal.find('.modal-body .id').text(ID)
+        $('#modal_delete .modal-footer a').attr("href", "/botiquines/delete/"+ID)
+    });
+
+    $(function() {
+       $('#table').bootstrapTable()
+    });
+});
+</script>
+
+<div class="section">
+    <div id="toolbar">
+        <div class="btn-group">
+            <h3>Tabla de botiquines</h3>
+            <button type='button' class='btn btn-success ml-4' data-toggle='modal' 
+        data-target='#modal_insert' id='btn-new'> Agregar botiquin</button>
+        </div>
+        
+    </div>
+    <div class="table-responsive">
+    <table  id="table"
+            data-show-toggle="true"
+            data-toolbar="#toolbar"
+            data-locale="es-MX"
+            data-toggle="table"
+            data-search="true"
+            data-pagination="true"
+            data-mobile-responsive="true"
+            data-check-on-init="true" >
+        <thead>
+            <tr>
+                <th data-sortable="true" data-field="id" >Número:</th>
+                <th data-sortable="true" data-field="nombre" >Descripción:</th>
+                <th data-sortable="true" data-field="direccion" >Veterinario:</th>            
+                <th></th>
+            </tr>
+        </thead>
+            <tbody> 
+                {{#each botiquines}}
+                <tr>    
+                    <td >{{numero}}</td>
+                    <td>{{descripcion}}</td>
+                    <td>{{veterinario}}</td>
+                    <td>
+                    <div class="btn-group" role="group">
+                        <a class="btn btn-primary" type="button" href="/botiquines/{{numero}}/contenido">
+                            <i class="fa fa-archive" aria-hidden="true"></i>
+                        </a>
+
+                        <button class="btn btn-secondary ml-2" 
+                                data-target='#modal_update' 
+                                data-numero="{{numero}}"
+                                data-descripcion="{{descripcion}}"
+                                data-veterinario="{{veterinario}}"
+                                data-toggle='modal'>
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                        </button>
+  
+                        <button class="btn btn-danger ml-2" 
+                                data-target='#modal_delete' 
+                                data-id="{{numero}}" 
+                                data-toggle='modal'>
+                            <i class="fa fa-trash-o" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    </td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td>
+                        No hay ningún registro en la base de datos.
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+    </table>
+    </div>
+</div>
+
+<!-- Modal para agregar -->
+<div class='modal fade' id='modal_insert'>	
+    <div class='modal-dialog modal-dialog-centered modal-lg'>
+    <div class='modal-content'>
+        <form id="frm_insert" autocomplete="off" method="POST" action="/botiquines/add">
+        <!-- Modal Header -->
+        <div class='modal-header'>
+            <h3 class='modal-title'>Agregar un nuevo botiquin</h3>
+            <button type='button' class='close' data-dismiss='modal'>&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class='modal-body'>
+            <div class="form-group">
+                <label for="descripcion">Descripción del botiquin</label>
+                <textarea name="descripcion" rows="2" class="form-control" required="" placeholder="Escriba una breve descripcion para poder identificar el botiquin con más facilidad"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="veterinario">Asignar a veterinario</label>
+                <select name="veterinario" class="form-control" required="">
+                    {{#each veterinarios}}
+                        <option value="{{user}}">{{nombre}}</option>
+                    {{/each}}
+                    <option value="">Ninguno</option>
+                </select>
+            </div>				
+        </div> 
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancel_insert">Cancelar</button>
+            <input type="submit" class="btn btn-primary" value="Guardar">
+        </div>
+        </form>
+    </div>
+    </div>
+</div>
+
+<!-- Modal para actualizar-->
+<div class='modal fade' id='modal_update'>	
+    <div class='modal-dialog modal-dialog-centered modal-lg'>
+    <div class='modal-content'>
+        <form id="frm_update" autocomplete="off" method="POST" action="">
+        <!-- Modal Header -->
+        <div class='modal-header'>
+            <h3 class='modal-title'>Actualizar información del botiquin</h3>
+            <button type='button' class='close' data-dismiss='modal'>&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class='modal-body'>
+            <div class="form-group">
+                <label for="numero">Descripción del botiquin</label>
+                <input type="text" name="numero" required="" readonly="" class="form-control"> 
+            </div>
+            <div class="form-group">
+                <label for="descripcion">Descripción del botiquin</label>
+                <textarea name="descripcion" rows="2" class="form-control" required="" placeholder="Escriba una breve descripcion para poder identificar el botiquin con más facilidad"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="veterinario">Asignar a veterinario</label>
+                <select name="veterinario" class="form-control" required="">
+                     {{#each veterinarios}}
+                        <option value="{{user}}">{{nombre}}</option>
+                    {{/each}}
+                    <option value="">Ninguno</option>
+                </select>
+            </div>				
+        </div> 
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancel_insert">Cancelar</button>
+            <input type="submit" class="btn btn-primary" value="Guardar cambios">
+        </div>
+        </form>
+    </div>
+    </div>
+</div>
+
+<!-- Modal para eliminar-->
+<div class='modal' id='modal_delete'>	
+    <div class='modal-dialog modal-dialog-centered'>
+        <div class='modal-content'>
+
+            <!-- Modal Header -->
+            <div class='modal-header'>
+                <h3 class='modal-title'>Confirmación para eliminar registro</h3>
+            </div>
+
+            <!-- Modal body -->
+            <div class='modal-body'>
+                <h5>¿Desea borrar el registro con clave <b><span class="id"></span></b> ?</h5>
+            </div> 
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <a href="" class="btn btn-primary">SÍ</a>
+            </div>
+        </div> 
+    </div>
+</div>

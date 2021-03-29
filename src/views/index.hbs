@@ -1,0 +1,118 @@
+{{#if user}} {{!-- Si el usuario inicio sesión --}}
+    {{#if (isVeterinarioUser user.tipo)}} {{!-- Vista de inicio para VETERINARIOS --}}
+    <div class="section">
+        <div class="container text-center mx-auto">
+            <h1 class="p-2">Consultas pendientes</h1>
+        </div>
+        <div class="container cards">
+            <div class="row">
+                {{#each consultas}}
+                <div class="col-md-3 mb-2">
+                    <div class="card text-center">
+                        <div class="card-header bg-{{colorprioridad prioridad}}" style="color:white;">
+                            <h3>{{descripcion}}</h3>
+                        </div>
+                        <div class="card-body">
+                            <p>{{priority prioridad}}</p>
+                            <p class="m-2">{{cliente}}</p>
+                            <a href="/consultas/{{IDConsulta}}/tratamiento" class="btn btn-secondary">Más información</a>
+                            <hr>
+                            <p class="card-text"><small class="text-muted">{{timeago fechaRegistro}}</small></p>
+                        </div>
+                    </div>
+                </div>
+                {{else}}
+                <div class="col-md-4 mx-auto">
+                    <div class="card card-body text-center">
+                        <p>No hay consultas pendientes.</p>
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+    {{/if}}
+    {{#if (isAdminUser user.tipo)}} {{!-- Vista de inicio para ADMINISTRADORES --}}
+    <div class="section">
+    <div class="container card-columns p-4 mb-4">
+
+        <a class="card menu" href="/clientes">
+            <div class="card-body text-center my-auto">
+                <h1 class="card-title">
+                    <i class="fa fa-address-book-o" aria-hidden="true"></i>
+                </h1>
+                <h3>Clientes</h3>
+            </div>
+        </a>
+        <a class="card menu" href="/consultas">
+            <div class="card-body text-center my-auto">
+                <h1 class="card-title">
+                    <i class="fa fa-address-card" aria-hidden="true"></i>
+                </h1>
+                <h3>Consultas</h3>
+            </div>
+        </a>
+        <a class="card menu" href="/botiquines">
+            <div class="card-body text-center my-auto">
+                <h1 class="card-title">
+                    <i class="fa fa-briefcase" aria-hidden="true"></i>
+                </h1>
+                <h3>Botiquines</h3>
+            </div>
+        </a>
+
+        <a class="card menu" href="/inventario">
+            <div class="card-body text-center my-auto">
+                <h1 class="card-title">
+                    <i class="fa fa-archive" aria-hidden="true"></i>
+                </h1>
+                <h3>Inventario General</h3>
+            </div>
+        </a>
+        <a class="card menu" href="/empleados">
+            <div class="card-body text-center my-auto">
+                <h1 class="card-title">
+                    <i class="fa fa-users" aria-hidden="true"></i>
+                </h1>
+                <h3>Empleados</h3>
+            </div>
+        </a>
+        <a class="card menu" href="/mapa">
+            <div class="card-body text-center my-auto">
+                <h1 class="card-title">
+                    <i class="fa fa-map-marker" aria-hidden="true"></i>
+                </h1>
+                <h3>Mapas</h3>
+            </div>
+        </a>
+        
+    </div>
+    </div>
+    {{else}} {{!-- Vista de inicio para OTROS USUARIOS --}}
+    <main class="index">
+        <header class="masthead d-flex">
+            <div class="container text-center my-auto">
+                <h1 class="mb-1">Bienvenido</h1>
+                <h2 class="mb-2">
+                    <em>{{user.nombre}}</em>
+                </h2>
+                <h5>Eres un usuario tipo {{user.tipo}}</h5>
+            </div>
+        </header>
+    </main>
+{{/if}}
+{{else}} {{!-- Si el usuario NO inicio sesión --}}
+    <main class="index">
+        <header class="masthead d-flex">
+            <div class="container text-center my-auto">
+                <h1 class="mb-1">PonyVet</h1>
+                <h2 class="mb-5">
+                    <em>Sistema de administración de una clínica veterinaria.</em>
+                </h2>
+                <a href="/signin" class="btn btn-primary">
+                    Iniciar Sesión
+                </a>
+            </div>
+        </header>
+    </main>
+{{/if}}

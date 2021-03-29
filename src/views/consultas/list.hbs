@@ -1,0 +1,392 @@
+<script type="text/javascript">
+$(document).ready(function () {
+    $("#btn-new").click(function() {
+        $("#frm_insert .range-group").show();
+		$("#frm_insert .date-group").hide();
+		$("#frm_insert select[name='opc']").val("no");
+		$("#frm_insert input[name='fecha']").removeAttr('required');
+		$("#frm_insert input[name='hora']").removeAttr('required');
+	});	
+    $("#frm_insert .date-group").hide();
+    $("#frm_insert .opc_fecha").on("change", function() {
+            var val = $(this).val();
+
+            if (val == "no") {
+                $("#frm_insert .date-group").hide();
+                $("#frm_insert .range-group").show();
+                $("#frm_insert input[name='fecha']").removeAttr('required');
+                $("#frm_insert input[name='hora']").removeAttr('required');
+            } else {
+                $("#frm_insert .date-group").show();
+                $("#frm_insert .range-group").hide();
+                $("#frm_insert input[name='fecha']").attr('required', 'required');
+                $("#frm_insert input[name='hora']").attr('required', 'required');
+        }
+    });
+
+    $("#frm_update .date-group").hide();
+    $("#frm_update .opc_fecha").on("change", function() {
+        var val = $(this).val();
+
+        if (val == "no") {
+            $("#frm_update .date-group").hide();
+            $("#frm_update .range-group").show();
+            $("#frm_update input[name='fecha']").removeAttr('required');
+			$("#frm_update input[name='hora']").removeAttr('required');
+        } else {
+            $("#frm_update .date-group").show();
+            $("#frm_update .range-group").hide();
+            $("#frm_update input[name='fecha']").attr('required', 'required');
+			$("#frm_update input[name='hora']").attr('required', 'required');
+        }
+    });
+
+
+    $('#modal_update').on('show.bs.modal', function (event) {
+        $("#frm_update .date-group").hide();
+        $("#frm_update .range-group").show();
+        $("#frm_update input[name='fecha']").removeAttr('required');
+        $("#frm_update input[name='hora']").removeAttr('required');
+        var button = $(event.relatedTarget) 
+
+        var IDConsulta = button.data('id')
+        var descripcion = button.data('descripcion') 
+        var opc = button.data('opc')
+        var fecha = button.data('fecha')
+        var hora = button.data('hora')
+        var prioridad = button.data('prioridad')
+        var modal = $(this)
+
+        modal.find('.modal-body textarea[name="descripcion"]').val(descripcion)
+        modal.find('.modal-body select[name="opc"]').val(opc)
+
+        if(opc == 'no'){
+            modal.find('.modal-body select[name="prioridad"]').val(prioridad)
+        }   
+        else if (opc == 'si'){
+            $("#frm_update .date-group").show();
+            $("#frm_update .range-group").hide();
+           
+            modal.find('.modal-body input[name="fecha"]').val(fecha)
+            modal.find('.modal-body input[name="hora"]').val(hora)
+             $("#frm_update input[name='fecha']").attr('required', 'required');
+			$("#frm_update input[name='hora']").attr('required', 'required');
+        }else alert("Error");
+        $('#modal_update form').attr("action", "/consultas/edit/"+IDConsulta)
+    });
+
+    $('#modal_delete').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) 
+        var ID = button.data('id') 
+        var modal = $(this)
+        modal.find('.modal-body .id').text(ID)
+        $('#modal_delete .modal-footer a').attr("href", "/consultas/delete/"+ID)
+    });
+
+    $(function() {
+       $('#table').bootstrapTable()
+    });
+});
+</script>
+
+<div class="section">
+    <div id="toolbar">
+        <div class="btn-group">
+            <h3>Tabla de consultas</h3>
+            <button type='button' class='btn btn-success ml-4' data-toggle='modal' 
+            data-target='#modal_insert' id='btn-new'> Agregar consulta</button>
+            {{!-- <div class="custom-control custom-switch ml-4 my-auto">
+                <input type="checkbox" class="custom-control-input" id="customSwitch1">
+                <label class="custom-control-label" for="customSwitch1">Mostrar todas la consultas</label>
+            </div> --}}
+        </div>
+    </div>
+    <div class="table-responsive">
+    <table  id="table"
+            data-show-toggle="true"
+            data-toolbar="#toolbar"
+            data-locale="es-MX"
+            data-toggle="table"
+            data-search="true"
+            data-pagination="true"
+            data-mobile-responsive="true"
+            data-check-on-init="true" >
+        <thead>
+            <tr>
+                <th data-sortable="true" data-field="id">Clave</th>
+                <th data-sortable="true" data-field="registro">Registro:</th>
+                <th data-sortable="true" data-field="cliente">Cliente:</th>
+                <th data-sortable="true" data-field="descripcion">Descripcion:</th>
+                <th data-sortable="true" data-field="estado">Estado:</th>
+                <th data-sortable="true" data-field="programada">Programada:</th>
+                <th data-sortable="true" data-field="user">Registrada por:</th>              
+                <th data-sortable="true" data-field="prioridad">Prioridad:</th>              
+                <th></th>
+            </tr>
+        </thead>
+            <tbody> 
+                {{#each consultas}}
+                <tr>
+                    <td>{{IDConsulta}}</td> 
+                    <td>{{timeago fechaRegistro}}</td> 
+                    <td>{{cliente}}</td>
+                    <td>{{descripcion}}</td>
+                    <td>{{estado}}</td>
+                    <td>{{programada}}</td>
+                    <td>{{recepcionista}}</td>
+                    <td>{{priority prioridad}}</td>
+                    <td>
+                    <div class="btn-group" role="group">
+                        <a class="btn btn-success ml-2" href="/consultas/{{IDConsulta}}/tratamiento">
+                            <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                        </a>
+
+                        <button class="btn btn-secondary ml-2" 
+                                data-target='#modal_update' 
+                                data-id="{{IDConsulta}}"
+                                data-descripcion="{{descripcion}}"
+                                data-fecha="{{fecha}}"
+                                data-hora="{{hora}}"
+                                {{#if fechaProgramada}}
+                                    data-opc="si"
+                                {{else}}
+                                    data-opc="no"
+                                {{/if}}
+                                data-prioridad="{{prioridad}}"
+                                data-toggle='modal'>
+                            <i class="fa fa-pencil" aria-hidden="true"></i>
+                        </button>
+  
+                        <button class="btn btn-danger ml-2" 
+                                data-target='#modal_delete' 
+                                data-id="{{IDConsulta}}"
+                                data-toggle='modal'>
+                            <i class="fa fa-trash-o" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                    </td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td>
+                        No hay ningún registro en la base de datos.
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+    </table>
+    </div>
+</div>
+   <!-- Modal para agregar -->
+	<div class='modal fade' id='modal_insert'>	
+	  <div class='modal-dialog modal-lg modal-dialog-centered'>
+	    <div class='modal-content'>
+			<form action="/consultas/add" method="POST" id="frm_insert">
+			<!-- Modal Header -->
+			<div class='modal-header'>
+				<h3 class='modal-title'>Agregar nueva consulta</h3>
+				<div class="alert-zone-child"></div>
+			</div>
+			<!-- Modal body -->
+			<div class='modal-body'>	
+                <div class="form-group">
+                    <label for="IDCliente" >Seleccione cliente:</label>
+                    <select class="form-control" name="IDCliente" id="list_clie" required="">
+                        {{#each clientes}}
+                            <option value="{{IDCliente}}">{{nombre}} - {{dir}}</option>
+                        {{else}}
+                            <option value="">No se encontraron clientes</option>
+                        {{/each}}
+                    </select>
+                </div>
+				{{!-- <div class="form-group">
+						<label>&nbsp;</label>
+						<button type="button" class="btn btn-success" data-toggle='modal' data-target='#modal_insert_clie' id="insert_btn_child">
+                            Agregar un nuevo cliente</button>
+					</div> --}}
+				<div class="form-group">
+					<label for="descripcion">Descripción de la consulta:</label>
+					<textarea class="form-control" name="descripcion" rows="3" required="" placeholder="Redacte una breve descripcion de la consulta"></textarea>
+				</div>
+
+				<div class="form-group">
+					<label for="opc" >¿Desea programar la consulta para una fecha especifica?</label>
+						<select class="form-control opc_fecha" name="opc">
+						<option selected="" value="no">NO</option>
+						<option value="si">SÍ</option>
+						</select>
+				</div>
+
+				<div class="form-group row date-group">
+					<div class="form-group col-md-6">
+						<label for="fecha">Fecha</label>
+						<input type="date" min="{{current_day}}" class="form-control" name="fecha">
+					</div>
+					<div class="form-group col-md-6">
+						<label for="hora">Hora</label>
+						<input type="time" class="form-control" name="hora">
+					</div>
+				</div>
+				<div class="form-group range-group">
+					<label for="prioridad">¿Qué tan urgente es la consulta?</label>
+						<select class="form-control" name="prioridad">
+						<option selected="" value="0">NO URGENTE (Acudir ese día o los proximos días)</option>
+						<option value="1">URGENTE (Acudir ese mismo día o al siguiente máximo)</option>
+						<option value="2">MUY URGENTE (Acudir inmediatamente)</option>
+						</select>
+				</div>
+			</div> 
+			<!-- Modal footer -->
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal" id="cancel_insert">Cancelar</button>
+				<input type="submit" class="btn btn-success" value="Guardar">
+			</div>
+			</form>
+	    </div>
+	  </div>
+	</div>
+
+<!-- Modal para agregar UN NUEVO CLIENTE -->
+<div class='modal fade' id='modal_insert_clie'>	
+    <div class='modal-dialog modal-lg modal-dialog-centered'>
+    <div class='modal-content'>
+        <form action="/clientes/add" autocomplete="off" method="POST">
+        <!-- Modal Header -->
+        <div class='modal-header'>
+            <h3 class='modal-title'>Agregar un nuevo cliente</h3>
+            <button type='button' class='close' data-dismiss='modal'>&times;</button>
+        </div>
+
+        <!-- Modal body -->
+        <div class='modal-body'>				
+            <div class="form-group row">
+                <div class="form-group col-md-7">
+                    <label for="Nombre">Nombre</label>
+                    <input type="text" class="form-control" name="nombre" required="" pattern="[a-z A-ZñÑáéíúóÁÉÍÓÚñÑ.üÜ]{4,100}" placeholder="Nombre y apellido(s)">
+                </div>
+                <div class="form-group col-md-5">
+                    <label for="nombresClave">Apodo(s)</label>
+                    <input type="text" class="form-control" name="apodos" pattern="[a-z A-ZñÑáéíúóÁÉÍÓÚñÑ.üÜ,]{1,50}" placeholder="Apodo(s) (opcional)">
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="form-group col-md-7">
+                    <label for="municipio">Seleccionar dirección</label>
+                    <select class="form-control list_dir" name="direccion" required="">
+                        {{#each direcciones}}
+                            <option value="{{IDDireccion}}"> {{municipio}} - {{comunidad}} </option>
+                        {{else}}
+                            <option value="" selected=""> No se encontro ninguna direccion </option>
+                        {{/each}}  
+                    </select>
+                </div>
+                <div class="form-group col-md-5">
+                    <label for="search">Buscar</label>
+                    <input type="search" name="search" class="form-control search_dir" placeholder="Buscar">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="referencias">Referencias de la vivienda</label>
+                <textarea class="form-control" name="referencias" rows="2" pattern="[a-z A-ZñÑáéíúóÁÉÍÓÚñÑ.üÜ,]{4,100}" placeholder="Escriba algunas referencias para hallar el domicilio del cliente"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="telefono">Teléfono</label>
+                <input type="text" class="form-control" name="telefono" pattern="[0-9]{10}" placeholder="10 digitos">
+            </div>
+            
+        </div> 
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+            <input type="reset" class="btn btn-secondary" data-dismiss="modal" value="Cancelar" />
+            <input type="submit" class="btn btn-primary" value="Guardar">
+        </div>
+        </form>
+    </div>
+    </div>
+</div>
+
+<!-- Modal para actualizar-->
+<div class='modal fade' id='modal_update'>	
+    <div class='modal-dialog modal-lg modal-dialog-centered'>
+    <div class='modal-content'>
+        <form id="frm_update" autocomplete="off" method="POST" action="">
+        <!-- Modal Header -->
+        <div class='modal-header'>
+            <h3 class='modal-title'>Actualizar información de la consulta</h3>
+            <button type='button' class='close' data-dismiss='modal'>&times;</button>
+        </div>
+        <!-- Modal body -->
+        <div class='modal-body'>
+            <form id="frm_update">
+
+            <div class="form-group">
+                <label for="descripcion">Descripción de la consulta:</label>
+                <textarea class="form-control" name="descripcion" rows="3" required="" placeholder="Redacte una breve descripcion de la consulta"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="opc" >¿Desea programar la consulta para una fecha especifica?</label>
+                    <select class="form-control opc_fecha" name="opc">
+                    <option selected="" value="no">NO</option>
+                    <option value="si">SÍ</option>
+                    </select>
+            </div>
+
+            <div class="form-group row date-group">
+                <div class="form-group col-md-6">
+                    <label for="fecha">Fecha</label>
+                    <input type="date" min="{{current_day}}" class="form-control" name="fecha">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="hora">Hora</label>
+                    <input type="time" class="form-control" name="hora">
+                </div>
+            </div>
+            <div class="form-group range-group">
+                <label for="prioridad">¿Qué tan urgente es la consulta?</label>
+                    <select class="form-control" name="prioridad">
+                    <option selected="" value="0">NO URGENTE (Acudir ese día o los proximos días)</option>
+                    <option value="1">URGENTE (Acudir ese mismo día o al siguiente máximo)</option>
+                    <option value="2">MUY URGENTE (Acudir inmediatamente)</option>
+                    </select>
+            </div>
+        </div> 
+
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <input type="submit" class="btn btn-success" value="Guardar cambios">
+        </div>
+        </form>
+    </div>
+    </div>
+</div>
+
+<!-- Modal para eliminar-->
+<div class='modal' id='modal_delete'>	
+    <div class='modal-dialog modal-dialog-centered'>
+        <div class='modal-content'>
+
+            <!-- Modal Header -->
+            <div class='modal-header'>
+                <h3 class='modal-title'>Confirmación para eliminar registro</h3>
+            </div>
+
+            <!-- Modal body -->
+            <div class='modal-body'>
+                <h5>¿Desea borrar el registro con clave <b><span class="id"></span></b> ?</h5>
+            </div> 
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <a href="" class="btn btn-primary">SÍ</a>
+            </div>
+        </div> 
+    </div>
+</div>

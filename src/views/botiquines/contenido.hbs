@@ -1,0 +1,151 @@
+<script type="text/javascript">
+$(document).ready(function () {
+    $('#modal_delete').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget) 
+        var botiquin = button.data('botiquin') 
+        var medicamento = button.data('medicamento') 
+        var modal = $(this)
+        modal.find('.modal-body .id').text(medicamento)
+        $('#modal_delete .modal-footer a').attr("href", "/botiquines/"+botiquin+"/contenido/delete/"+medicamento)
+    });
+
+    $('#modal_insert').on('show.bs.modal', function (event) {
+        $("#frm_insert select[name='cantidad']").html('<option value=""> --Selecciona-- </option>');
+    });
+    $("#frm_insert select[name='cantidad']").on('focus', function(event) {
+        {{#each inventario}}
+        if( $("#frm_insert select[name='medicamento']").val() == '{{codigo}}'){
+            var cantidad = parseInt('{{cantidadDisponible}}', 10);  
+            $("#frm_insert select[name='cantidad']").empty();
+            if(cantidad == 0)
+                $("#frm_insert select[name='cantidad']").html('<option value=""> No hay en existencia </option>');
+            for (var i = 1; i <= cantidad; i++) {
+                $("#frm_insert select[name='cantidad']").append('<option value="'+i+'">'+i+'</option>');
+            }
+        }
+        {{/each}}
+    });
+    
+
+    $(function() {
+       $('#table').bootstrapTable()
+    });
+});
+</script>
+
+<div class="section">
+    <div id="toolbar">
+        <div class="btn-group">
+            <h3>Contenido del botiquin {{botiquin.numero}}</h3>
+            <button type='button' class='btn btn-success ml-4' data-toggle='modal' 
+            data-target='#modal_insert' id='btn-new'> Agregar medicamento</button>
+        </div>
+    </div>
+    <table  id="table"
+            data-show-toggle="true"
+            data-toolbar="#toolbar"
+            data-locale="es-MX"
+            class="table table-striped"
+            data-toggle="table"
+            data-search="true"
+            data-pagination="true"
+            data-mobile-responsive="true"
+            data-check-on-init="true" >
+        <thead>
+            <tr>
+                <th data-sortable="true" data-field="clave" >Clave:</th>
+                <th data-sortable="true" data-field="nombre" >Nombre:</th>
+                <th data-sortable="true" data-field="marca" >Marca:</th>
+                <th data-sortable="true" data-field="presentacion" >Presentacion:</th>
+                <th data-sortable="true" data-field="cantidad" >Cantidad:</th>          
+                <th></th>
+            </tr>
+        </thead>
+            <tbody> 
+                {{#each medicamentos}}
+                <tr>    
+                    <td>{{medicamento}}</td>
+                    <td>{{nombre}}</td>
+                    <td>{{marca}}</td>
+                    <td>{{descripcion}}</td>
+                    <td>{{cantidad}}</td>
+                    <td>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-danger ml-2" 
+                                data-target='#modal_delete' 
+                                data-botiquin="{{botiquin}}"
+                                data-medicamento="{{medicamento}}"
+                                data-toggle='modal'>
+                            Agotar{{!-- <i class="fa fa-trash-o" aria-hidden="true"></i> --}}
+                        </button>
+                    </div>
+                    </td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td>
+                        No hay ningún registro en la base de datos.
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+    </table>
+</div>
+
+<!-- Modal para añadir medicamentos al botiquin -->
+<div class='modal fade' id='modal_insert'>	
+    <div class='modal-dialog modal-dialog-centered modal-lg'>
+    <div class='modal-content'>
+        <form id="frm_insert" autocomplete="off" method="POST" action="/botiquines/{{botiquin.numero}}/contenido/add">
+        <!-- Modal Header -->
+        <div class='modal-header'>
+            <h3 class='modal-title'>Agregar medicamento</h3>
+        </div>
+        <!-- Modal body -->
+        <div class='modal-body'>
+            <div class="form-group">
+                <label for="medicamento">Medicamento</label>
+                <select class="form-control" name="medicamento" required="">
+                    {{#each inventario}}
+                        <option value="{{codigo}}">{{nombre}} - {{marca}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="cantidad">Cantidad</label>
+                <select class="form-control"  name="cantidad" required=""></select>
+            </div>
+        </div> 
+        <!-- Modal footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <input type="submit" class="btn btn-primary" value="Agregar">
+        </div>
+        </form>
+    </div>
+    </div>
+</div>
+
+<!-- Modal para eliminar-->
+<div class='modal' id='modal_delete'>	
+    <div class='modal-dialog modal-dialog-centered'>
+        <div class='modal-content'>
+
+            <!-- Modal Header -->
+            <div class='modal-header'>
+                <h3 class='modal-title'>Confirmación para eliminar registro</h3>
+            </div>
+
+            <!-- Modal body -->
+            <div class='modal-body'>
+                <h5>¿Desea borrar el registro con clave <b><span class="id"></span></b> ?</h5>
+            </div> 
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <a href="" class="btn btn-primary">SÍ</a>
+            </div>
+        </div> 
+    </div>
+</div>

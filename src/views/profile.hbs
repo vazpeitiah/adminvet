@@ -1,0 +1,137 @@
+<script>
+$(document).ready(function () {
+    $('#modal_update').on('show.bs.modal', function (event) {
+        $('#group_password').hide();
+		$("#frm_update input[name='password']").removeAttr('required');
+		$("#frm_update input[name='password2']").removeAttr('required');
+		$("#frm_update input[name='password']").val("")
+		$("#frm_update input[name='password2']").val("")
+		$("#frm_update select[name='opc']").val("NO");
+    });
+    $("#frm_update select[name='opc']").on('change', function() {
+		if($(this).val() == "SI"){
+			$("#frm_update input[name='password']").attr('required', 'required');
+			$("#frm_update input[name='password2']").attr('required', 'required');
+			$("#group_password").show();
+		}else if($(this).val() == "NO"){
+			$("#group_password").hide();
+			$("#frm_update input[name='password']").removeAttr('required');
+			$("#frm_update input[name='password2']").removeAttr('required');
+		}
+	});
+
+	$("#frm_update input[name='password2']").on("blur", function(){
+		if ($("#frm_update input[name='password']").val() != $(this).val()) {
+	        this.setCustomValidity("Las contraseñas no coinciden");
+	    } else {
+	        this.setCustomValidity("");
+	    }	    	
+	});
+    
+    $('#frm_update input[name="tipo"]').val("{{user.tipo}}");
+});
+</script>
+
+<div class="section">
+    <div class="row profile">
+        <div class="col-md-4 mx-auto">
+            <div class="card text-center mt-4">
+                <div class="card-body">
+                    <h2>Información del usuario</h2>
+                    <table class="table table-bordered">
+                        <tr>
+                            <th>Nombre de usuario</th>
+                        </tr>
+                        <tr>
+                            <td>{{user.user}}</td>
+                        </tr>
+                        <tr>
+                            <th>Nombre completo</th>
+                        </tr>
+                        <tr>
+                            <td>{{user.nombre}}</td>
+                        </tr>
+                        <tr>
+                            <th>Tipo de usuario</th>
+                        </tr>
+                        <tr>
+                            <td>{{user.tipo}}</td>
+                        </tr>
+                        <tr>
+                            <th>Telefono</th>
+                        </tr>
+                        <tr>
+                            <td>{{user.telefono}}</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <button class="btn btn-secondary btn-block" data-target='#modal_update' data-toggle='modal'>
+                                    Editar Información
+                                </button>
+                            </td>
+                        </tr>
+                    </table>    
+                    {{!-- <a href="/links" class="btn btn-primary m-4">Save your links</a> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para actualizar-->
+<div class='modal fade' id='modal_update'>	
+    <div class='modal-dialog modal-dialog-centered modal-lg'>
+    <div class='modal-content'>
+        <form id="frm_update" autocomplete="off" method="POST" action="/empleados/edit/{{user.user}}">
+        <!-- Modal Header -->
+        <div class='modal-header'>
+            <h3 class='modal-title'>Actualizar información</h3>
+            <button type='button' class='close' data-dismiss='modal'>&times;</button>
+        </div>
+        <!-- Modal body -->
+        <div class='modal-body'>
+            <div class="form-group row">
+                <div class="form-group col-md-6">
+                    <label for="Nombre">Nombre completo</label>
+                    <input type="text" class="form-control" name="nombre" value="{{user.nombre}}" required="" pattern="[a-z A-ZñÑáéíóúÁÉÍÓÚüÜ.]{5,100}" placeholder="Nombre y apellidos">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="telefono">Telefono</label>
+                    <input type="text" class="form-control" name="telefono" value="{{user.telefono}}" placeholder="Teléfono o celular" pattern="[0-9]{10}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="tipo">Tipo de usuario</label>
+                <input type="text" name="tipo" class="form-control" readonly required>
+            </div>
+
+            <div class="form-group">
+                <label for="opc">¿Quieres cambiar la contraseña?</label>
+                <select name="opc" class="form-control">
+                    <option value="NO" selected="">NO</option>
+                    <option value="SI">SÍ</option>
+                </select>
+            </div>
+
+            <div class="form-group row" id="group_password">
+                <div class="form-group col-md-6">
+                    <label for="password">Escriba la nueva contraseña</label>
+                    <input type="password" class="form-control" name="password" placeholder="Contraseña">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="password2">Escriba nuevamente la contraseña</label>
+                    <input type="password" class="form-control" name="password2" placeholder="Escriba de nuevo la contraseña">
+                </div>
+            </div>
+            
+        </div> 
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            <input type="submit" class="btn btn-primary submit" value="Guardar">
+        </div>
+    </form>
+    </div>
+    </div>
+</div>

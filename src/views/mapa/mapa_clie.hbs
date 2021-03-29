@@ -1,0 +1,27 @@
+<script>
+	$(function() {
+       $('#table').bootstrapTable()
+    });
+</script>
+<div class="section">
+    <div class="container mt-4">
+        <div id="map"></div>
+    </div>
+		 {{!-- Aquí se cargará el mapa --}}
+</div>
+<script>
+	function initMap() {
+	
+		var map = new google.maps.Map(document.getElementById('map'), {
+			zoom: 13,
+			center: { lat: 20.250281, lng: -99.029392 },
+			mapTypeId: 'hybrid',
+			streetViewControl: true, //Habilitamos el modo street view
+			mapTypeControl: false, //Evitamos que cambie la textura del mapa
+		});
+
+	}
+</script>
+
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=YOURAPI&callback=initMap">
+</script>

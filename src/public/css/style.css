@@ -1,0 +1,119 @@
+body {
+    background: #f5f6f5;
+    overflow: hidden;
+}
+
+/* NAVBAR */
+.navbar {
+    background: #232526; 
+    font-size: medium;
+    
+}
+
+.navbar .navbar-brand {
+    color: #f5f6f5;
+}
+
+.navbar .navbar-nav .nav-link {
+    color: #f5f6f5;
+   
+}
+
+/* .navbar .navbar-nav .nav-item .nav-link:hover {
+    background: white;
+    color: black;   
+    border-radius: 5px;
+}
+ */
+/* MESSAGE */
+.message{
+    position: relative;
+}
+
+/*INDEX SECTION*/
+.index{
+    height: 100vh;
+}
+
+.masthead {
+    color: whitesmoke;
+    min-height: 30rem;
+    width: 100%;
+    height: 100%;
+    padding-top: 8rem;
+    background-image: url(/img/dog2.jpg);
+    background-color: rgb(110, 110, 110);
+    background-blend-mode: soft-light;
+    background-position: center center;
+    background-size: cover;
+}   
+
+.masthead h1 {
+    font-size: 4rem;
+    margin: 0;
+    padding: 0;
+}
+
+.masthead h2 {
+    color:#f5f6f5;
+}
+
+
+@media (min-width: 992px){
+    .masthead h1 {
+        font-size: 5.5rem;
+    }
+}
+/*GENERAL SECTION*/
+.section{
+    height: 100vh;
+    overflow: auto;
+    padding: 0mm 4mm;   
+}
+
+.section .table-responsive{
+    margin-bottom: 14mm;
+}
+
+.section .profile {
+    margin-bottom: 25mm;
+}
+
+.section .cards {
+    margin-bottom: 22mm;
+}
+
+/*MAPAS STYLES*/
+#map {
+   height: 700px;
+   width: 100%;
+   margin-bottom: 20mm;
+}
+
+#directions-panel {
+    margin-top: 10px;
+    overflow: auto;
+    height: 174px;
+}
+
+/*MARK MAP STYLE*/
+#map_mark{
+    height: 400px;
+}
+
+
+/*CARDS MENU ADMINISTRADOR*/
+
+.card.menu {
+    text-decoration: none;
+    color: #232526;
+}
+
+.card.menu:hover {
+    background: cadetblue;
+    color: #f5f6f5;
+}
+
+.card.menu .card-body .card-title {
+    font-size: 10rem;
+}
